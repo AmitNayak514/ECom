@@ -22,6 +22,8 @@ import axios from "axios";
 import { useParams, useRouter } from "next/navigation";
 import toast from "react-hot-toast";
 import AlertModal from "./modals/alert-modal";
+import { ApiAlert } from "./ui/api-alert";
+import { useOrigin } from "@/hooks/use-origin";
 
 interface SettingsFormProps {
   initialData: Store;
@@ -36,12 +38,13 @@ type SettingsFormValues = z.infer<typeof formSchema>;
 const SettingsForm: React.FC<SettingsFormProps> = ({ initialData }) => {
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
+  const params = useParams();
+  const router = useRouter();
+  const origin = useOrigin();
   const form = useForm<SettingsFormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: initialData,
   });
-  const params = useParams();
-  const router = useRouter();
   const onSubmit = async (data: SettingsFormValues) => {
     try {
       setLoading(true);
@@ -121,6 +124,12 @@ const SettingsForm: React.FC<SettingsFormProps> = ({ initialData }) => {
           </Button>
         </form>
       </Form>
+      <Separator />
+      <ApiAlert
+        title="NEXT_PUBLIC_API_URL"
+        description={`${origin}/api/${params.storeId}`}
+        variant="public"
+      />
     </>
   );
 };
