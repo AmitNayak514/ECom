@@ -44,6 +44,7 @@ export async function PATCH(
         imageUrl,
       },
     });
+    console.log(billboard);
     return NextResponse.json(billboard);
   } catch (error) {
     console.log("[BILLBOARD_PATCH]", error);
@@ -77,7 +78,7 @@ export async function DELETE(
     }
     const billboard = await prismadb.billboard.deleteMany({
       where: {
-        id: params.storeId,
+        id: params.billboardId,
       },
     });
     return NextResponse.json(billboard);

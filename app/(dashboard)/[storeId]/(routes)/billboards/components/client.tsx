@@ -2,12 +2,14 @@
 
 import { Button } from "@/components/ui/button";
 import { Heading } from "@/components/ui/heading";
-import { Billboard } from "@prisma/client";
-import { Separator } from "@radix-ui/react-separator";
+import { Separator } from "@/components/ui/separator";
 import { Plus } from "lucide-react";
 import { useParams, useRouter } from "next/navigation";
+import { BillboardColumn, columns } from "./columns";
+import { DataTable } from "@/components/ui/data-table";
+import ApiList from "@/components/ui/api-list";
 interface BillboardClientProps {
-  data: Billboard[];
+  data: BillboardColumn[];
 }
 
 const BillboardClient: React.FC<BillboardClientProps> = ({ data }) => {
@@ -15,7 +17,7 @@ const BillboardClient: React.FC<BillboardClientProps> = ({ data }) => {
   const router = useRouter();
   return (
     <div>
-      <div className="flex items-center justify-between">
+      <div className="flex items-center mb-2 justify-between">
         <Heading
           title={`Billboards (${data.length})`}
           description="Manage billboards for your store"
@@ -27,7 +29,11 @@ const BillboardClient: React.FC<BillboardClientProps> = ({ data }) => {
           Add New
         </Button>
       </div>
-      <Separator />
+      <Separator className="mb-4" />
+      <DataTable searchKey="label" data={data} columns={columns} />
+      <Heading title={`API`} description="API calls for Billboards" />
+      <Separator className="mb-4" />
+      <ApiList entityName="billboards" entityIdName="billboardId" />
     </div>
   );
 };
