@@ -24,6 +24,7 @@ import toast from "react-hot-toast";
 import AlertModal from "./modals/alert-modal";
 import { ApiAlert } from "./ui/api-alert";
 import { useOrigin } from "@/hooks/use-origin";
+import ImageUpload from "./ui/image-upload";
 
 interface BillboardFormProps {
   initialData: Billboard | null;
@@ -49,16 +50,32 @@ const BillboardForm: React.FC<BillboardFormProps> = ({ initialData }) => {
       imageUrl: "",
     },
   });
+
+  const title = initialData ? "Edit Billboard" : "Create Billboard";
+  const description = initialData
+    ? "Edit a Billboard."
+    : "Add a New Billboard.";
+  const toastMessage = initialData
+    ? "Billboard Updated."
+    : "Billboard Created.";
+  const action = initialData ? "Save Changes" : "Create";
+
   const onSubmit = async (data: BillboardFormValues) => {
     try {
       setLoading(true);
-      await axios.patch(`/api/stores/${params.storeId}`, data);
+      if (initialData) {
+        await axios.patch(
+          `/api/${params.storeId}/billboards/${params.billboardId}`,
+          data
+        );
+      } else {
+        await axios.post(`/api/${params.storeId}/billboards`, data);
+      }
       router.refresh();
-      toast.success("Store Updated.");
+      router.push(`/${params.storeId}/billboards`);
+      toast.success(toastMessage);
     } catch (error) {
-      toast.error(
-        "Make sure you remove all the categories and products first."
-      );
+      toast.error("Something went wrong.");
       console.log(error);
     } finally {
       setLoading(false);
@@ -68,12 +85,16 @@ const BillboardForm: React.FC<BillboardFormProps> = ({ initialData }) => {
   const onDelete = async () => {
     try {
       setLoading(true);
-      await axios.delete(`/api/stores/${params.storeId}`);
+      await axios.delete(
+        `/api/${params.storeId}/billboards/${params.billboardId}`
+      );
       router.refresh();
       router.push(`/`);
       toast.success("Store Deleted.");
     } catch (error) {
-      toast.error("Something went wrong.");
+      toast.error(
+        "Make sure you remove all the categories using this billboard first."
+      );
     } finally {
       setLoading(false);
     }
@@ -87,44 +108,63 @@ const BillboardForm: React.FC<BillboardFormProps> = ({ initialData }) => {
         loading={loading}
       />
       <div className="flex items-center justify-between">
-        <Heading title="Settings" description="Manage Store Preferences" />
-        <Button
-          variant="destructive"
-          size={"sm"}
-          onClick={() => {
-            setOpen(true);
-          }}
-        >
-          <Trash className="h-4 w-4 " />
-        </Button>
+        <Heading title={title} description={description} />
+        {initialData && (
+          <Button
+            variant="destructive"
+            size={"sm"}
+            onClick={() => {
+              setOpen(true);
+            }}
+          >
+            <Trash className="h-4 w-4 " />
+          </Button>
+        )}
       </div>
       <Separator />
       <Form {...form}>
         <form
           onSubmit={form.handleSubmit(onSubmit)}
-          className="space-y-8 w-full"
+          className="space-y-2 w-full"
         >
-          <div className="grid grid-cols-3 gap-8">
-            <FormField
-              control={form.control}
-              name="name"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Name</FormLabel>
-                  <FormControl>
-                    <Input
-                      disabled={loading}
-                      placeholder="Store Name"
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          </div>
+          <FormField
+            control={form.control}
+            name="imageUrl"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Background Image</FormLabel>
+                <FormControl>
+                  <ImageUpload
+                    disabled={loading}
+                    onRemove={() => field.onChange("")}
+                    onChange={(url) => field.onChange(url)}
+                    value={field.value ? [field.value] : []}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <div className="grid grid-cols-3 gap-8"></div>
+          <FormField
+            control={form.control}
+            name="label"
+            render={({ field }) => (
+              <FormItem className="mb-2">
+                <FormLabel>Label</FormLabel>
+                <FormControl>
+                  <Input
+                    disabled={loading}
+                    placeholder="Billboard Label"
+                    {...field}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
           <Button disabled={loading} className="ml-auto" type="submit">
-            Save Changes
+            {action}
           </Button>
         </form>
       </Form>
