@@ -1,7 +1,7 @@
 "use client";
 
 import * as z from "zod";
-import { Billboard } from "@prisma/client";
+import { Size } from "@prisma/client";
 import { Heading } from "./ui/heading";
 import { Button } from "./ui/button";
 import { Trash } from "lucide-react";
@@ -26,52 +26,48 @@ import { ApiAlert } from "./ui/api-alert";
 import { useOrigin } from "@/hooks/use-origin";
 import ImageUpload from "./ui/image-upload";
 
-interface BillboardFormProps {
-  initialData: Billboard | null;
+interface SizeFormProps {
+  initialData: Size | null;
 }
 
 const formSchema = z.object({
-  label: z.string().min(1),
-  imageUrl: z.string().min(1),
+  name: z.string().min(1),
+  value: z.string().min(1),
 });
 
-type BillboardFormValues = z.infer<typeof formSchema>;
+type SizeFormValues = z.infer<typeof formSchema>;
 
-const BillboardForm: React.FC<BillboardFormProps> = ({ initialData }) => {
+const SizeForm: React.FC<SizeFormProps> = ({ initialData }) => {
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const params = useParams();
   const router = useRouter();
   const origin = useOrigin();
-  const form = useForm<BillboardFormValues>({
+  const form = useForm<SizeFormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: initialData || {
-      label: "",
-      imageUrl: "",
+      name: "",
+      value: "",
     },
   });
 
-  const title = initialData ? "Edit Billboard" : "Create Billboard";
-  const description = initialData
-    ? "Edit a Billboard."
-    : "Add a New Billboard.";
-  const toastMessage = initialData
-    ? "Billboard Updated."
-    : "Billboard Created.";
+  const title = initialData ? "Edit Size" : "Create Size";
+  const description = initialData ? "Edit a Size." : "Add a New Size.";
+  const toastMessage = initialData ? "Size Updated." : "Size Created.";
   const action = initialData ? "Save Changes" : "Create";
 
-  const onSubmit = async (data: BillboardFormValues) => {
+  const onSubmit = async (data: SizeFormValues) => {
     try {
       setLoading(true);
       if (initialData) {
         await axios.patch(
-          `/api/${params.storeId}/billboards/${params.billboardId}`,
+          `/api/${params.storeId}/sizes/${params.sizeId}`,
           data
         );
       } else {
-        await axios.post(`/api/${params.storeId}/billboards`, data);
+        await axios.post(`/api/${params.storeId}/sizes`, data);
       }
-      router.push(`/${params.storeId}/billboards`);
+      router.push(`/${params.storeId}/sizes`);
       router.refresh();
       toast.success(toastMessage);
     } catch (error) {
@@ -85,15 +81,13 @@ const BillboardForm: React.FC<BillboardFormProps> = ({ initialData }) => {
   const onDelete = async () => {
     try {
       setLoading(true);
-      await axios.delete(
-        `/api/${params.storeId}/billboards/${params.billboardId}`
-      );
-      router.push(`/${params.storeId}/billboards`);
+      await axios.delete(`/api/${params.storeId}/sizes/${params.sizeId}`);
+      router.push(`/${params.storeId}/sizes`);
       router.refresh();
-      toast.success("Billboard Deleted.");
+      toast.success("Size Deleted.");
     } catch (error) {
       toast.error(
-        "Make sure you remove all the categories using this billboard first."
+        "Make sure you remove all the products using this size first."
       );
     } finally {
       setLoading(false);
@@ -127,35 +121,34 @@ const BillboardForm: React.FC<BillboardFormProps> = ({ initialData }) => {
           onSubmit={form.handleSubmit(onSubmit)}
           className="space-y-2 w-full"
         >
+          <div className="grid grid-cols-3 gap-8"></div>
           <FormField
             control={form.control}
-            name="imageUrl"
+            name="name"
             render={({ field }) => (
-              <FormItem>
-                <FormLabel>Background Image</FormLabel>
+              <FormItem className="mb-2">
+                <FormLabel>Name</FormLabel>
                 <FormControl>
-                  <ImageUpload
+                  <Input
                     disabled={loading}
-                    onRemove={() => field.onChange("")}
-                    onChange={(url) => field.onChange(url)}
-                    value={field.value ? [field.value] : []}
+                    placeholder="Size Name"
+                    {...field}
                   />
                 </FormControl>
                 <FormMessage />
               </FormItem>
             )}
           />
-          <div className="grid grid-cols-3 gap-8"></div>
           <FormField
             control={form.control}
-            name="label"
+            name="value"
             render={({ field }) => (
               <FormItem className="mb-2">
-                <FormLabel>Label</FormLabel>
+                <FormLabel>Value</FormLabel>
                 <FormControl>
                   <Input
                     disabled={loading}
-                    placeholder="Billboard Label"
+                    placeholder="Size Value"
                     {...field}
                   />
                 </FormControl>
@@ -178,4 +171,4 @@ const BillboardForm: React.FC<BillboardFormProps> = ({ initialData }) => {
   );
 };
 
-export default BillboardForm;
+export default SizeForm;
