@@ -3,13 +3,12 @@ import { auth } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
 export async function PATCH(
   req: Request,
-  { params }: { params: { storeId: string; sizeId: string } }
+  { params }: { params: { storeId: string; colorId: string } }
 ) {
   try {
     const { userId } = auth();
     const body = await req.json();
     const { name, value } = body;
-
     if (!userId) {
       return new NextResponse("Unauthenticated", { status: 401 });
     }
@@ -22,8 +21,8 @@ export async function PATCH(
     if (!params.storeId) {
       return new NextResponse("Store ID is required", { status: 400 });
     }
-    if (!params.sizeId) {
-      return new NextResponse("Size ID is required", { status: 400 });
+    if (!params.colorId) {
+      return new NextResponse("Color ID is required", { status: 400 });
     }
 
     const storeByUserId = await prismadb.store.findFirst({
@@ -35,24 +34,24 @@ export async function PATCH(
     if (!storeByUserId) {
       return new NextResponse("Unauthorized", { status: 403 });
     }
-    const size = await prismadb.size.updateMany({
+    const colors = await prismadb.color.updateMany({
       where: {
-        id: params.sizeId,
+        id: params.colorId,
       },
       data: {
         name,
         value,
       },
     });
-    return NextResponse.json(size);
+    return NextResponse.json(colors);
   } catch (error) {
-    console.log("[SIZES_PATCH]", error);
+    console.log("[COLORS_PATCH]", error);
     return new NextResponse("Internal Server Error", { status: 500 });
   }
 }
 export async function DELETE(
   req: Request,
-  { params }: { params: { storeId: string; sizeId: string } }
+  { params }: { params: { storeId: string; colorId: string } }
 ) {
   try {
     const { userId } = auth();
@@ -60,8 +59,8 @@ export async function DELETE(
       return new NextResponse("Unauthenticated", { status: 401 });
     }
 
-    if (!params.sizeId) {
-      return new NextResponse("Size ID is required", { status: 400 });
+    if (!params.colorId) {
+      return new NextResponse("Color ID is required", { status: 400 });
     }
     if (!params.storeId) {
       return new NextResponse("Store ID is required", { status: 400 });
@@ -75,34 +74,34 @@ export async function DELETE(
     if (!storeByUserId) {
       return new NextResponse("Unauthorized", { status: 403 });
     }
-    const size = await prismadb.size.deleteMany({
+    const colors = await prismadb.color.deleteMany({
       where: {
-        id: params.sizeId,
+        id: params.colorId,
       },
     });
-    return NextResponse.json(size);
+    return NextResponse.json(colors);
   } catch (error) {
-    console.log("[SIZES_DELETE]", error);
+    console.log("[COLORS_DELETE]", error);
     return new NextResponse("Internal Server Error", { status: 500 });
   }
 }
 export async function GET(
   req: Request,
-  { params }: { params: { sizeId: string } }
+  { params }: { params: { colorId: string } }
 ) {
   try {
-    if (!params.sizeId) {
-      return new NextResponse("Size Id is required", { status: 400 });
+    if (!params.colorId) {
+      return new NextResponse("Color Id is required", { status: 400 });
     }
 
-    const size = await prismadb.size.findUnique({
+    const colors = await prismadb.color.findUnique({
       where: {
-        id: params.sizeId,
+        id: params.colorId,
       },
     });
-    return NextResponse.json(size);
+    return NextResponse.json(colors);
   } catch (error) {
-    console.log("[SIZES_GET]", error);
+    console.log("[COLORS_GET]", error);
     return new NextResponse("Internal Server Error", { status: 500 });
   }
 }

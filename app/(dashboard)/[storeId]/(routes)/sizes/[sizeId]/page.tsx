@@ -6,7 +6,7 @@ import { Billboard, Size } from "@prisma/client";
 const SizePage = async ({ params }: { params: { sizeId: string } }) => {
   let sizes: Size | null = null;
   if (params.sizeId !== "new") {
-    const sizes = await prismadb.size.findUnique({
+    sizes = await prismadb.size.findUnique({
       where: {
         id: params.sizeId,
       },
