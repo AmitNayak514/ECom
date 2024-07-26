@@ -7,6 +7,9 @@ body,
 :root {
   height: 100%;
 }
+cl-internal-180wb59 {
+  display: none;
+}
 
 @layer base {
   :root {
